@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import healthRoutes from './routes/health.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';               
-import authRoutes from './routes/_auth.js';
+import authRoutes from './routes/auth.js';
 import { globalRateLimiter } from './middlewares/rateLimiter.js';
 import { enforceJsonType } from './middlewares/requestType.js';
 import { rejectEmptyBody } from './middlewares/sanity.js';

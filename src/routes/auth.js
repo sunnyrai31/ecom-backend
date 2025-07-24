@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { connectMongo } from '../Utils/mongo.js';
-
+import { verifyToken } from '../Utils/authMiddleware.js';
 const router = express.Router();
 const SECRET = 'gearshift-top-secret'; // 🔐 You can move this to env
 
@@ -48,6 +48,14 @@ router.post('/login', async (req, res) => {
   );
 
   res.json({ token });
+});
+router.get('/me', verifyToken, async (req, res) => {
+  const db = await connectMongo();
+  const user = await db.collection('users').findOne({ id: req.user.id }, { projection: { passwordHash: 0 } });
+
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  res.json({ user });
 });
 
 export default router;
