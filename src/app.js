@@ -27,22 +27,20 @@ app.use('/health', healthRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/auth', authRoutes);
+
 app.get('/', (req, res) => {
   res.send('🔥 Ecom backend is alive and breathing!');
 });
 
-app.listen(PORT, () => {
-  console.log(`⚡ Server running at http://localhost:${PORT}`);
-});
 const startServer = async () => {
-               try {
-                 await connectMongo();
-                 app.listen(PORT, () => {
-                   console.log(`⚡ Server running at http://localhost:${PORT}`);
-                 });
-               } catch (err) {
-                 console.error('❌ Startup failed:', err.message);
-               }
-             };
-             
-             startServer();
+  try {
+    await connectMongo();
+    app.listen(PORT, () => {
+      console.log(`⚡ Server running at http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Startup failed:', err.message);
+  }
+};
+
+startServer();

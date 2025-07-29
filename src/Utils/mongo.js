@@ -13,7 +13,7 @@ export async function connectMongo() {
 
   try {
     await client.connect();
-    db = client.db(); // defaults to db name from URI
+    db = client.db();
     console.log('🧠 Connected to MongoDB');
     return db;
   } catch (err) {
