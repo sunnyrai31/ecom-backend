@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # MongoDB service
+  mongodb:
+    image: mongo:7.0
+    container_name: ecom-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: ecom
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d:Z
+    networks:
+      - ecom-network
+
+  # E-commerce Backend API
+  ecom-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecom-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=4201
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/ecom?authSource=admin
+    ports:
+      - "4201:4201"
+    depends_on:
+      - mongodb
+    networks:
+      - ecom-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4201/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  ecom-network:
+    driver: bridge 

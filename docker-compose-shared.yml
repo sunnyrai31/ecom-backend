@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # MongoDB service with shared volume
+  mongodb:
+    image: mongo:7.0
+    container_name: ecom-mongodb-shared
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: ecom
+    ports:
+      - "27018:27017"  # Different port to avoid conflict
+    volumes:
+      - ./shared-mongo-data:/data/db  # Shared volume with host
+      - ./mongo-init:/docker-entrypoint-initdb.d:Z
+    networks:
+      - ecom-network
+
+  # E-commerce Backend API
+  ecom-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecom-backend-shared
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=4201
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017/ecom?authSource=admin
+    ports:
+      - "4202:4201"  # Different port
+    depends_on:
+      - mongodb
+    networks:
+      - ecom-network
+
+volumes:
+  shared_mongo_data:
+    driver: local
+
+networks:
+  ecom-network:
+    driver: bridge 
